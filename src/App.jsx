@@ -6,6 +6,7 @@ const ResultScreen = ({ playerWins, draws, playerLosses }) => (
     <p>Player Wins: {playerWins}</p>
     <p>Draws: {draws}</p>
     <p>Player Losses: {playerLosses}</p>
+    <h2>Try again !!!</h2>
   </div>
 );
 
