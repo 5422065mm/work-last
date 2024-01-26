@@ -10,4 +10,15 @@ function Player({ playGame }) {
   );
 }
 
+
+/*function Player({ playGame }) {
+  return (
+      <div className="Player-buttons">
+          <button onClick={() => playGame('rock')} disabled={!isPlayerTurn}>Rock</button>
+          <button onClick={() => playGame('paper')} disabled={!isPlayerTurn}>Paper</button>
+          <button onClick={() => playGame('scissors')} disabled={!isPlayerTurn}>Scissors</button>
+      </div>
+  );
+}*/
+
 export default Player;

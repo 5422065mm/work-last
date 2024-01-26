@@ -1,50 +1,76 @@
-import React, { useEffect, useState } from 'react';
-import Player from './Player';
-import Result from './Result';
+import React, { useState, useEffect } from 'react';
 
-export default function App() {
-    const [playerChoice, setPlayerChoice] = useState(null);
-    const [computerChoice, setComputerChoice] = useState(null);
-    const [winner, setWinner] = useState(null);
-    const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+const App = () => {
+  const [computerChoice, setComputerChoice] = useState(null);
+  const [playerChoice, setPlayerChoice] = useState(null);
+  const [result, setResult] = useState(null);
+  const [isPlayerTurn, setIsPlayerTurn] = useState(false);
 
-    const playGame = (choice) => {
-        // コンピュータの選択（ランダムにじゃんけんの手を選択）
-        const choices = ['rock', 'paper', 'scissors'];
-        const computerPick = choices[Math.floor(Math.random() * 3)];
-        setComputerChoice(computerPick);
+  useEffect(() => {
+    const makeComputerMove = () => {
+      // コンピューターの手をランダムに選択
+      const choices = ['rock', 'paper', 'scissors'];
+      const randomIndex = Math.floor(Math.random() * choices.length);
+      const computerHand = choices[randomIndex];
+      setComputerChoice(computerHand);
 
-        // プレイヤーの選択を設定
-        setPlayerChoice(choice);
-
-        // 勝者を決定
-        if ((choice === 'rock' && computerPick === 'scissors') ||
-            (choice === 'scissors' && computerPick === 'paper') ||
-            (choice === 'paper' && computerPick === 'rock')) {
-            setWinner('player');
-        } else if (choice === computerPick) {
-            setWinner('draw');
-        } else {
-            setWinner('computer');
-        }
+      // プレイヤーのターンに切り替える
+      setIsPlayerTurn(true);
     };
 
-    useEffect(() => {
-        console.log("Computer Choice:", computerChoice);
-        console.log("Is Player Turn:", isPlayerTurn);
+    if (!isPlayerTurn) {
+      // 1秒後にコンピューターの手を出す
+      const timeoutId = setTimeout(makeComputerMove, 1000);
 
-        if (!computerChoice) {
-            setIsPlayerTurn(false); // コンピュータの選択がまだならプレイヤーのターンではない
-        } else {
-            setIsPlayerTurn(true);  // コンピュータの選択が完了したらプレイヤーのターンへ移行
-        }
-    }, [computerChoice]);
+      // Clean up関数を追加
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isPlayerTurn]);
 
-    return (
-        <div className="App">
-            <h1>後出しじゃんけんゲーム</h1>
-            {isPlayerTurn ? <Player playGame={playGame} /> : <p>Computer's Choice: {computerChoice}</p>}
-            {winner && <Result winner={winner} playerChoice={playerChoice} computerChoice={computerChoice} />}
-        </div>
-    );
-}
+  const handlePlayerChoice = (choice) => {
+    if (isPlayerTurn) {
+      // プレイヤーの手を設定
+      setPlayerChoice(choice);
+
+      // 勝敗判定
+      determineResult(choice, computerChoice);
+      setIsPlayerTurn(false); // コンピューターのターンに移行
+    }
+  };
+
+  const determineResult = (playerHand, computerHand) => {
+    // 勝敗判定
+    if (playerHand === computerHand) {
+      setResult('Draw!');
+    } else if (
+      (playerHand === 'rock' && computerHand === 'scissors') ||
+      (playerHand === 'paper' && computerHand === 'rock') ||
+      (playerHand === 'scissors' && computerHand === 'paper')
+    ) {
+      setResult('You win!');
+    } else {
+      setResult('You lose!');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Rock Paper Scissors</h1>
+      <p>Computer's choice: {computerChoice}</p>
+      <p>Your choice: {playerChoice}</p>
+      <p>Result: {result}</p>
+
+      {isPlayerTurn ? (
+        <>
+          <button onClick={() => handlePlayerChoice('rock')}>Rock</button>
+          <button onClick={() => handlePlayerChoice('paper')}>Paper</button>
+          <button onClick={() => handlePlayerChoice('scissors')}>Scissors</button>
+        </>
+      ) : (
+        <p>Waiting for computer...</p>
+      )}
+    </div>
+  );
+};
+
+export default App;
