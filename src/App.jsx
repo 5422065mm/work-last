@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ResultScreen = ({ playerWins, draws, playerLosses }) => (
   <div>
@@ -17,6 +17,30 @@ const App = () => {
   const [playerWins, setPlayerWins] = useState(0);
   const [draws, setDraws] = useState(0);
   const [playerLosses, setPlayerLosses] = useState(0);
+  const [qrCode, setQrCode] = useState("");
+
+
+  useEffect(() => {
+    // 最初のラウンドでコンピューターの手をすぐに表示する処理
+    makeComputerMove();
+  }, []);
+
+
+  useEffect(() => {
+    const generateQrCode = async () => {
+      try {
+        const text = "https://portal.educ.chs.nihon-u.ac.jp/";
+        const size = 80;
+        const response = await fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(text)}&size=${size}x${size}`);
+        // 生成したQRコードをセット
+        setQrCode(response.url); // setQrCodeが定義されていないためコメントアウト
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    };
+
+    generateQrCode();
+  }, []);
 
   const makeComputerMove = () => {
     // コンピューターの手をランダムに選択
@@ -26,8 +50,10 @@ const App = () => {
     setComputerChoice(computerHand);
 
     // プレイヤーのターンに切り替える
-    setResult(null); // Reset the result for a new round
+    setResult(null); // 新しいラウンドのために結果をリセット
   };
+
+  
 
   const handlePlayerChoice = (choice) => {
     // プレイヤーの手を設定
@@ -54,11 +80,11 @@ const App = () => {
       setPlayerLosses((prevLosses) => prevLosses + 1);
     }
 
-    // Make a new move after a brief delay
+    // 新しい手をセットする（遅延させる）
     setTimeout(() => {
       if (playerWins >= 10) {
-        // If player wins 10 or more times, navigate to result screen
-        setPlayerWins(0); // Reset win count for a new game
+        // プレイヤーが10回以上勝った場合、結果画面に遷移
+        setPlayerWins(0); // 新しいゲームのために勝利回数をリセット
       } else {
         makeComputerMove();
       }
@@ -87,7 +113,11 @@ const App = () => {
           </div>
         </>
       )}
+      <div className="qrcode">
+        {qrCode && <img src={qrCode} alt="作成者" />}
+      </div>
     </div>
+    
   );
 };
 
